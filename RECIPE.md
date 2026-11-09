@@ -1,6 +1,6 @@
 # Pixel
 
-A retro, pixel-art take on Herdr's main window that leaves the terminals' own text alone. Spaces are listed under a machine heading set in a VGA bitmap font. Agents become framed cards, each with a tiny pixel scene that shows the agent's status: a sleeping monitor, a screen of scrolling code with a blinking cursor, a smile, or a red "!". Tabs are square pixel boxes. Every terminal sits in a square 2px frame with a pixel header, and the focused one turns orange. The terminal inside keeps the person's own font, size and colors.
+A retro, pixel-art take on Herdr's main window that leaves the terminals' own text alone. Spaces are listed under a machine heading set in a VGA bitmap font. Agents become framed cards, each with a tiny pixel scene that shows the agent's status: a sleeping monitor, a screen of scrolling code with a blinking cursor, a smile, or a red "!". Tabs are square pixel boxes, and the status bar reads like a DOS status line. Every terminal sits in a square 2px frame with a pixel header, and the focused one turns orange. The terminal inside keeps the person's own font, size and colors.
 
 ![Pixel](preview.png)
 
@@ -41,6 +41,14 @@ A retro, pixel-art take on Herdr's main window that leaves the terminals' own te
   - The folder (`~`-shortened) in MS Sans Serif 11px, `dim`.
   - The agent's status badge on the right, styled like the cards' badges.
   - On hover, split right, split down, zoom and close buttons appear. Each gets an orange 1px outline on hover.
+**Status bar** (28px, `chrome`, 2px top rule in `border`), left to right with 10px gaps, all in the VGA font at 16px:
+
+- The pixel monitor icon (or the server icon for a remote space) and the machine name in upper case in `#f0a04b` (`THIS MACHINE` for this computer).
+- When the space's first terminal is in a git repo: a `│` in `border`, Herdr's `git-branch` icon (13px, `dim`) and the branch (`muted`, truncated at 220px).
+- `│`, then `N AGENTS` (`muted`).
+- One segment per status that has agents, most urgent first: a 6×6 square and `N NEEDS YOU` / `N BUSY` / `N DONE` / `N IDLE`, both in that status color. The busy square blinks.
+- On the right: the command palette's key as bound in `keys.json`, in a 1px `dim` keycap (11px UI font, since the VGA font has no ⌘ glyph), then `COMMANDS` in `dim`. Clicking it opens the palette.
+
 - **Terminal text**: the layout sets no `font`, `font_size`, `theme` or `colors`, so terminals keep exactly what `settings.json` gives them.
 
 The scenes are 32×32 pixel art drawn at 2× scale: a beige CRT on a navy starfield (`#1b1730`) over a striped floor.
@@ -74,8 +82,10 @@ The scenes are 32×32 pixel art drawn at 2× scale: a beige CRT on a navy starfi
 - `layouts/pixel.json`: a clone of Herdr's `main`.
   - The `spaces` and `agents` blocks point to `pixel-spaces` (weight 2) and `pixel-agents` (weight 3), and the `tabs` block to `pixel-tabs`.
   - The `main` block's `pane` is `{radius: 0, border: {width: 2, color: "border"}, focus: {width: 2, color: "#f0a04b"}, header: {content: {mod: "pixel-pane"}, height: 30, position: "top", reveal: "always"}, gap: 8, lone: true, background: "background"}`.
-  - Every other block uses Herdr's shipped mods: `workspace-chrome`, `files`, `changes` and `workspace-status`.
+  - The `status` block points to `pixel-status`.
+  - Every other block uses Herdr's shipped mods: `workspace-chrome`, `files` and `changes`.
 - `mods/pixel-tabs`: a clone of Herdr's `tabs` mod with its items, buttons and panel toggles restyled. It calls `spaces`, `panes`, `run` (`tab.select`, `tab.move`, `tab.rename`, `tab.close`, `tab.prev`, `tab.next`, `layout.show`, `layout.hide`, `layout.select`, `window.*`), `openOverlay` (`new-menu`, `menu`), `window`, `layout`, `settings` and `shared` (`workspace.panels`).
+- `mods/pixel-status`: a rewrite of Herdr's `workspace-status` mod. It calls `spaces`, `agents`, `keys`, `window` and `run` (`app.palette`), and uses `pixel-spaces/art` icons.
 - `mods/pixel-pane`: a clone of Herdr's `pane` header mod, restyled. It calls `panes`, `props` and `run` (`pane.focus`, `pane.split`, `pane.zoom`, `pane.close`).
 - `mods/pixel-spaces`: a clone of Herdr's `spaces` mod.
   - Adds `pixelHeading()` and a pixel heading for each machine, and restyles `row()` and the header.
@@ -97,7 +107,7 @@ The scenes are 32×32 pixel art drawn at 2× scale: a beige CRT on a navy starfi
 
 - **Font sizes:** the VGA font is crisp only at 16px (its native cell). Smaller sizes blur, so small print uses MS Sans Serif at 11px instead.
 - **Terminal text:** don't set `font`, `font_size`, `theme` or `colors` on the layout root. They would change the terminals' text, which this layout deliberately leaves alone. All restyling lives in the mods and the pane frame.
-- **Shared fonts:** `pixel-agents`, `pixel-tabs` and `pixel-pane` have no `fonts/` folder of their own and rely on `pixel-spaces/fonts`. Fonts load at start and on the next look change. Switching to the layout loads them, but if text renders in a fallback font, switch layouts once.
+- **Shared fonts:** `pixel-agents`, `pixel-tabs`, `pixel-pane` and `pixel-status` have no `fonts/` folder of their own and rely on `pixel-spaces/fonts`. Fonts load at start and on the next look change. Switching to the layout loads them, but if text renders in a fallback font, switch layouts once.
 - **Cursor position:** the cursor's position (32, 36) is tied to the art's 2× scale. Redrawing `working.svg` or changing the 64px scene size moves it off the screen.
 - **Shipped icons:** both mods still reference shipped icons in `mods/workspace-chrome/` (plus, chevrons, pin, sort, spinner). Those ship with Herdr, but renaming them would break these mods.
 - **Heading space:** long machine names truncate at 150px, so the rule can shrink to its 8px minimum.
@@ -105,7 +115,8 @@ The scenes are 32×32 pixel art drawn at 2× scale: a beige CRT on a navy starfi
 
 ## Done when
 
-- `herdr-app check` passes for `mods/pixel-spaces`, `mods/pixel-agents`, `mods/pixel-tabs` and `mods/pixel-pane`.
+- `herdr-app check` passes for `mods/pixel-spaces`, `mods/pixel-agents`, `mods/pixel-tabs`, `mods/pixel-pane` and `mods/pixel-status`.
+- The status bar reads `THIS MACHINE │ N AGENTS`, plus a count for each status present, and the busy count's square blinks while an agent works.
 - The active tab has a square orange outline. Splitting a pane (`pane.split:right`) shows two square 2px frames, and only the focused one is orange with an orange upper-case name in its header.
 - Terminal text looks exactly as it does in Herdr's `main` layout: same font, size and colors.
 - `herdr-app do layout.switch --name pixel` shows `SPACES` and `AGENTS` in the VGA bitmap font, not a smooth fallback font.
