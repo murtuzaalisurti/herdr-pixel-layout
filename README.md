@@ -4,6 +4,8 @@ A retro pixel-art layout for the [Herdr](https://herdr.dev) app. It uses bitmap-
 
 ![Pixel layout preview](preview.png)
 
+The look is inspired by typecraft's retro pixel Herdr setup, featured in [this video](https://www.youtube.com/watch?v=bBsNFZ1-HUs). Go watch it.
+
 ## Install
 
 Ask your agent:
@@ -31,6 +33,7 @@ herdr-app do layout.switch --name pixel
 
 ## Credits and licenses
 
+- **Design inspiration:** [typecraft](https://www.youtube.com/watch?v=bBsNFZ1-HUs). The pixel headings, machine sections and agent cards follow their look. Everything here, including the art, was rebuilt from scratch.
 - The `main.js` of each `mods/pixel-*` folder is a modified copy of Herdr's shipped `spaces`, `agents`,
   `tabs`, `pane` and `workspace-status` mods, and `layouts/pixel.json` of its `main` layout (Herdr 0.1.14, Apache License 2.0;
   see [`LICENSE`](LICENSE)). The changes restyle how they draw: pixel headings, per-machine space headings,

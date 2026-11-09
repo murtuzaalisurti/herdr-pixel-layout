@@ -4,6 +4,8 @@ A retro, pixel-art take on Herdr's main window that leaves the terminals' own te
 
 ![Pixel](preview.png)
 
+Inspired by typecraft's retro pixel Herdr setup: https://www.youtube.com/watch?v=bBsNFZ1-HUs
+
 ## What you see
 
 **Left sidebar**, top to bottom (default width 268px):
