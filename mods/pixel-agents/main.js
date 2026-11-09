@@ -1,3 +1,4 @@
+// Modified from Herdr's shipped mod (Apache License 2.0, see LICENSE): pixel-art restyle.
 // Agents in grouped or priority views; parents take their most urgent sub-agent's place.
 // A viewed done agent stays in Done until left.
 

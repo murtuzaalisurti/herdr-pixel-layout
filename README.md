@@ -32,7 +32,10 @@ herdr-app do layout.switch --name pixel
 
 ## Credits and licenses
 
-- The mods are modified copies of Herdr's shipped `spaces` and `agents` mods.
+- `mods/pixel-spaces/main.js` and `mods/pixel-agents/main.js` are modified copies of Herdr's shipped
+  `spaces` and `agents` mods, and `layouts/pixel.json` of its `main` layout (Herdr 0.1.14, Apache License 2.0;
+  see [`LICENSE`](LICENSE)). The changes restyle how they draw: pixel headings, per-machine space headings,
+  and agent cards. The code and layout in this repo are under the same license.
 - The pixel art is original to this repo.
 - Fonts, unchanged, with their license files in `mods/pixel-spaces/fonts/`:
   - **PxPlus IBM VGA 8x16** by VileR (int10h.org), CC BY-SA 4.0.
