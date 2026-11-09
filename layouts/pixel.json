@@ -79,7 +79,7 @@
           "id": "tabs",
           "type": "block",
           "content": {
-            "mod": "tabs"
+            "mod": "pixel-tabs"
           },
           "size": {
             "px": 42
@@ -98,7 +98,7 @@
                 "pane": {
                   "header": {
                     "content": {
-                      "mod": "pane"
+                      "mod": "pixel-pane"
                     },
                     "reveal": "always",
                     "height": 30,
@@ -106,14 +106,14 @@
                   },
                   "background": "background",
                   "border": {
-                    "width": 1,
+                    "width": 2,
                     "color": "border"
                   },
                   "focus": {
-                    "width": 1,
-                    "color": "accent"
+                    "width": 2,
+                    "color": "#f0a04b"
                   },
-                  "radius": 10,
+                  "radius": 0,
                   "gap": 8,
                   "lone": true
                 }
