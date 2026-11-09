@@ -16,12 +16,12 @@ Or copy the files yourself:
 
 ```sh
 cp layouts/pixel.json ~/.config/herdr-app/layouts/
-cp -R mods/pixel-spaces mods/pixel-agents mods/pixel-tabs mods/pixel-pane mods/pixel-status ~/.config/herdr-app/mods/
-for m in pixel-spaces pixel-agents pixel-tabs pixel-pane pixel-status; do herdr-app check ~/.config/herdr-app/mods/$m; done
+cp -R mods/pixel-spaces mods/pixel-agents mods/pixel-tabs mods/pixel-pane mods/pixel-status mods/pixel-chrome ~/.config/herdr-app/mods/
+for m in pixel-spaces pixel-agents pixel-tabs pixel-pane pixel-status pixel-chrome; do herdr-app check ~/.config/herdr-app/mods/$m; done
 herdr-app do layout.switch --name pixel
 ```
 
-`ctrl-shift-l` switches back to your previous layout. Delete the copied layout file and five mod folders to remove it.
+`ctrl-shift-l` switches back to your previous layout. Delete the copied layout file and six mod folders to remove it.
 
 ## Customize
 
@@ -35,9 +35,9 @@ herdr-app do layout.switch --name pixel
 
 - **Design inspiration:** [typecraft](https://www.youtube.com/watch?v=bBsNFZ1-HUs). The pixel headings, machine sections and agent cards follow their look. Everything here, including the art, was rebuilt from scratch.
 - The `main.js` of each `mods/pixel-*` folder is a modified copy of Herdr's shipped `spaces`, `agents`,
-  `tabs`, `pane` and `workspace-status` mods, and `layouts/pixel.json` of its `main` layout (Herdr 0.1.14, Apache License 2.0;
+  `tabs`, `pane`, `workspace-status` and `workspace-chrome` mods, and `layouts/pixel.json` of its `main` layout (Herdr 0.1.14, Apache License 2.0;
   see [`LICENSE`](LICENSE)). The changes restyle how they draw: pixel headings, per-machine space headings,
-  agent cards, square tabs, pane frames and the status line. The icons in `pixel-tabs` and `pixel-pane` are Herdr's, unchanged. The code and layout in this repo are under the same license.
+  agent cards, square tabs, pane frames, the status line and the sidebar footer. The icons in `pixel-tabs` and `pixel-pane` are Herdr's, unchanged. The code and layout in this repo are under the same license.
 - The pixel art is original to this repo.
 - Fonts, unchanged, with their license files in `mods/pixel-spaces/fonts/`:
   - **PxPlus IBM VGA 8x16** by VileR (int10h.org), CC BY-SA 4.0.

@@ -24,7 +24,7 @@ Inspired by typecraft's retro pixel Herdr setup: https://www.youtube.com/watch?v
        1. A status badge: 1px border plus text in the status color, MS Sans Serif Bold 11px, reading `IDLE`, `BUSY`, `DONE` or `NEEDS YOU`. The time since the agent's last state change is on the right, or a pin button on hover.
        2. The space name in the VGA font at 16px.
        3. `program · title` in MS Sans Serif 11px, `dim`, truncated.
-4. **Footer** (69px): `workspace-chrome` with `{footer: true}`, unchanged.
+4. **Footer** (69px, 2px top rule in `border`): `pixel-chrome` with `{footer: true}`. Two 28px rows, `SETTINGS` (gear icon, `muted`) and `ADD MACHINE` (plus icon, `dim`), each with a 14px icon and the label in the VGA font at 16px. On hover a row gets a 3px `#f0a04b` left bar, a `#f0a04b1f` fill and orange text. A waiting app update adds a blinking 6×6 orange square after SETTINGS.
 
 **Tab bar** (42px, `chrome` background, 2px bottom rule in `border`):
 
@@ -75,6 +75,7 @@ The scenes are 32×32 pixel art drawn at 2× scale: a beige CRT on a navy starfi
   - A card focuses that agent's pane. Hovering a card swaps the time for a pin button.
   - A group heading folds that group, and the count then reads `N ›`.
 - **Tabs.** Clicking a tab selects it, double-clicking renames it, and dragging reorders it. Right-click opens the tab menu, and scrolling the bar moves to the previous or next tab.
+- **Footer.** SETTINGS opens Herdr's settings (`app.settings`), and ADD MACHINE opens the `machine-add` dialog.
 - **Panes.** Clicking a pane header focuses that pane, and its frame, header rule, square and name turn orange.
 - **Unchanged from Herdr's mods:** sub-agents (tree rows under their parent), pinning, the sort menu, git refreshes, worktree nesting and machine reconnects.
 - **Narrow sidebar:** below 160px wide (`ctrl-shift-b` folds it), both mods fall back to Herdr's compact rail.
@@ -84,9 +85,10 @@ The scenes are 32×32 pixel art drawn at 2× scale: a beige CRT on a navy starfi
 - `layouts/pixel.json`: a clone of Herdr's `main`.
   - The `spaces` and `agents` blocks point to `pixel-spaces` (weight 2) and `pixel-agents` (weight 3), and the `tabs` block to `pixel-tabs`.
   - The `main` block's `pane` is `{radius: 0, border: {width: 2, color: "border"}, focus: {width: 2, color: "#f0a04b"}, header: {content: {mod: "pixel-pane"}, height: 30, position: "top", reveal: "always"}, gap: 8, lone: true, background: "background"}`.
-  - The `status` block points to `pixel-status`.
-  - Every other block uses Herdr's shipped mods: `workspace-chrome`, `files` and `changes`.
+  - The `status` block points to `pixel-status`, and `sidebar-footer` to `pixel-chrome` (props `{footer: true}`).
+  - Every other block uses Herdr's shipped mods: `workspace-chrome` (the brand bar), `files` and `changes`.
 - `mods/pixel-tabs`: a clone of Herdr's `tabs` mod with its items, buttons and panel toggles restyled. It calls `spaces`, `panes`, `run` (`tab.select`, `tab.move`, `tab.rename`, `tab.close`, `tab.prev`, `tab.next`, `layout.show`, `layout.hide`, `layout.select`, `window.*`), `openOverlay` (`new-menu`, `menu`), `window`, `layout`, `settings` and `shared` (`workspace.panels`).
+- `mods/pixel-chrome`: a clone of Herdr's `workspace-chrome` with only its footer restyled; the brand-bar code is kept unchanged. It calls `run` (`app.settings`, `mod.open`), `updates` and `props`.
 - `mods/pixel-status`: a rewrite of Herdr's `workspace-status` mod. It calls `spaces`, `agents`, `keys`, `window` and `run` (`app.palette`), and uses `pixel-spaces/art` icons.
 - `mods/pixel-pane`: a clone of Herdr's `pane` header mod, restyled. It calls `panes`, `props` and `run` (`pane.focus`, `pane.split`, `pane.zoom`, `pane.close`).
 - `mods/pixel-spaces`: a clone of Herdr's `spaces` mod.
@@ -109,7 +111,7 @@ The scenes are 32×32 pixel art drawn at 2× scale: a beige CRT on a navy starfi
 
 - **Font sizes:** the VGA font is crisp only at 16px (its native cell). Smaller sizes blur, so small print uses MS Sans Serif at 11px instead.
 - **Terminal text:** don't set `font`, `font_size`, `theme` or `colors` on the layout root. They would change the terminals' text, which this layout deliberately leaves alone. All restyling lives in the mods and the pane frame.
-- **Shared fonts:** `pixel-agents`, `pixel-tabs`, `pixel-pane` and `pixel-status` have no `fonts/` folder of their own and rely on `pixel-spaces/fonts`. Fonts load at start and on the next look change. Switching to the layout loads them, but if text renders in a fallback font, switch layouts once.
+- **Shared fonts:** `pixel-agents`, `pixel-tabs`, `pixel-pane`, `pixel-status` and `pixel-chrome` have no `fonts/` folder of their own and rely on `pixel-spaces/fonts`. Fonts load at start and on the next look change. Switching to the layout loads them, but if text renders in a fallback font, switch layouts once.
 - **Cursor position:** the cursor's position (32, 36) is tied to the art's 2× scale. Redrawing `working.svg` or changing the 64px scene size moves it off the screen.
 - **Shipped icons:** both mods still reference shipped icons in `mods/workspace-chrome/` (plus, chevrons, pin, sort, spinner). Those ship with Herdr, but renaming them would break these mods.
 - **Heading space:** long machine names truncate at 150px, so the rule can shrink to its 8px minimum.
@@ -117,7 +119,7 @@ The scenes are 32×32 pixel art drawn at 2× scale: a beige CRT on a navy starfi
 
 ## Done when
 
-- `herdr-app check` passes for `mods/pixel-spaces`, `mods/pixel-agents`, `mods/pixel-tabs`, `mods/pixel-pane` and `mods/pixel-status`.
+- `herdr-app check` passes for `mods/pixel-spaces`, `mods/pixel-agents`, `mods/pixel-tabs`, `mods/pixel-pane`, `mods/pixel-status` and `mods/pixel-chrome`.
 - The status bar reads `THIS MACHINE │ N AGENTS`, plus a count for each status present, and the busy count's square blinks while an agent works.
 - The active tab has a square orange outline. Splitting a pane (`pane.split:right`) shows two square 2px frames, and only the focused one is orange with an orange upper-case name in its header.
 - Terminal text looks exactly as it does in Herdr's `main` layout: same font, size and colors.
