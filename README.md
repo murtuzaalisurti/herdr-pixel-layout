@@ -8,7 +8,7 @@ A retro pixel-art layout for the [Herdr](https://herdr.dev) app. It uses bitmap-
 
 Ask your agent:
 
-> Add the Herdr layout from https://github.com/&lt;you&gt;/herdr-pixel-sidebar
+> Add the Herdr layout from https://github.com/murtuzaalisurti/herdr-pixel-layout
 
 Or copy the files yourself:
 
