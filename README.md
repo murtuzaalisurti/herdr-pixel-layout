@@ -23,6 +23,8 @@ herdr-app do layout.switch --name pixel
 
 `ctrl-shift-l` switches back to your previous layout. Delete the copied layout file and six mod folders to remove it.
 
+To update an existing install, ask your agent to update the Herdr pixel layout from this repo, or pull and re-run the commands above (switch layouts once if Herdr doesn't reload automatically).
+
 ## Customize
 
 - **Accent color:** `ORANGE` at the top of both `mods/*/main.js`.
