@@ -12,9 +12,9 @@ Inspired by typecraft's retro pixel Herdr setup: https://www.youtube.com/watch?v
 
 1. **Brand bar** (46px): Herdr's own `workspace-chrome` mod, unchanged.
 2. **Spaces** (weight 2 of the remaining height, min 90px):
-   - **Header row** (36px): a 14×12 dithered square (`#5a5f6e` checkerboard), then `SPACES` in `PxPlus IBM VGA 8x16` at 16px in the theme's `dim` color. A pixel `+` sits on the right and turns `#f0a04b` on hover.
+   - **Header row** (36px): a 14×12 dithered square (`#5a5f6e` checkerboard), then `SPACES` in `PxPlus IBM VGA 8x16` at 16px in the theme's `dim` color. When any space is hidden, a 12×12 eye icon with the hidden count sits left of `+` (in `dim`, or `#f0a04b` while showing hidden spaces). A pixel `+` sits on the right and turns `#f0a04b` on hover.
    - **Machine heading** (30px, 6px above): a 14×12 pixel monitor icon for this computer, or a pixel server icon for remote machines. Then the machine name in upper case (`THIS MACHINE` for this one) in `#f0a04b`, a 1px rule in `#f0a04b66` that stretches to the edge, the space count in `foreground`, and a `+`. Unreachable machines draw the heading in `dim` and show their state instead of the count. The heading shows even when there is only one machine.
-   - **Space rows** (32px; 28px for worktrees): a 6×6 square in the space's stored color, then the name in the VGA font at 16px (`foreground` when active, `muted` otherwise). The git branch and ahead/behind sit right-aligned in `Pixelated MS Sans Serif` at 11px. The active row has a 3px `#f0a04b` left border and a `#f0a04b1f` fill.
+   - **Space rows** (32px; 28px for worktrees): a 6×6 square in the space's stored color, then the name in the VGA font at 16px (`foreground` when active, `muted` otherwise). The git branch and ahead/behind sit right-aligned in `Pixelated MS Sans Serif` at 11px. The active row has a 3px `#f0a04b` left border and a `#f0a04b1f` fill. Hovering a row reveals a 12×12 `eye-off` button on the right to hide it; in show-hidden mode, hidden rows render at 45% opacity with an `eye` button to unhide them.
 3. **Agents** (weight 3, top border in `border`):
    - **Header** (41px): the dithered square, `AGENTS` in the VGA font in `dim`, then `N BUSY` (`working` color when N > 0, else `dim`), then the sort icon.
    - **Group headings**: Working, Idle, Done, Needs you (priority sort) or space names (grouped sort). Each is set like the machine heading: the label in the status color (Idle in `muted`, space groups in `#f0a04b`), a rule, and the count.
@@ -70,7 +70,7 @@ The scenes are 32×32 pixel art drawn at 2× scale: a beige CRT on a navy starfi
   - **Done:** DONE in `done` and the smile scene. The space row shows a `*`.
   - **Idle:** IDLE in `idle` and the sleeping scene. The name turns `muted` unless the agent is focused.
 - **Clicks.**
-  - A space row selects it. Right-click opens the space menu, and dragging reorders spaces within a machine.
+  - A space row selects it. Right-click opens the space menu, dragging reorders spaces within a machine, and the hover eye icon hides or unhides it (persisted in `localStorage` under `spaces.hidden`). The header eye toggles showing hidden spaces dimmed inline.
   - A machine heading folds or unfolds its spaces, and its `+` makes a new space there.
   - A card focuses that agent's pane. Hovering a card swaps the time for a pin button.
   - A group heading folds that group, and the count then reads `N ›`.
@@ -92,7 +92,7 @@ The scenes are 32×32 pixel art drawn at 2× scale: a beige CRT on a navy starfi
 - `mods/pixel-status`: a rewrite of Herdr's `workspace-status` mod. It calls `spaces`, `agents`, `keys`, `window` and `run` (`app.palette`), and uses `pixel-spaces/art` icons.
 - `mods/pixel-pane`: a clone of Herdr's `pane` header mod, restyled. It calls `panes`, `props` and `run` (`pane.focus`, `pane.split`, `pane.zoom`, `pane.close`).
 - `mods/pixel-spaces`: a clone of Herdr's `spaces` mod.
-  - Adds `pixelHeading()` and a pixel heading for each machine, and restyles `row()` and the header.
+  - Adds `pixelHeading()` and a pixel heading for each machine, restyles `row()` and the header, and adds per-space hiding (`spaces.hidden` in `localStorage`).
   - Calls `spaces`, `machines`, `panes`, `run` (`space.select`, `space.move`, `space.new`), `openOverlay` (the menu), `exec` (git), `hc` (`machine ls/rm/add`), `watchFolder`, `shared` and `setShared` (`space.colors`).
   - Ships the fonts in `fonts/`, which the other mod uses too.
 - `mods/pixel-agents`: a clone of Herdr's `agents` mod.
@@ -100,7 +100,7 @@ The scenes are 32×32 pixel art drawn at 2× scale: a beige CRT on a navy starfi
   - Calls `agents`, `terminals`, `panes`, `focused`, `spaces`, `run` (`pane.focus`, `terminal.pin`, `terminal.peek`), `setAgentOrder`, `openOverlay` and `closeOverlay`.
 - Art: original SVGs made of 1×1 `rect`s with `shape-rendering="crispEdges"`.
   - `pixel-agents/art/{idle,working,done,blocked}.svg` are 32×32.
-  - `dither.svg`, `monitor.svg` and `server.svg` are 12×10.
+  - `dither.svg`, `monitor.svg` and `server.svg` are 12×10; `eye.svg` and `eye-off.svg` are 12×12 (`fill="currentColor"`).
 - Fonts:
   - `PxPlus IBM VGA 8x16` (VileR, CC BY-SA 4.0).
   - `Pixelated MS Sans Serif` Regular and Bold (lou, CC BY-SA 3.0).

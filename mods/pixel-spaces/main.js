@@ -78,10 +78,13 @@ export default class Spaces extends View {
     this.born = {};
     this.pressed = null;
     this.over = null;
+    this.hovered = null;
     this.machines = [];
     this.reconnecting = JSON.parse(localStorage.getItem("machines.reconnecting") ?? "{}");
     for (const state of Object.values(this.reconnecting)) state.busy = false;
     this.folded = new Set(JSON.parse(localStorage.getItem("machines.folded") ?? "[]"));
+    this.hidden = new Set(JSON.parse(localStorage.getItem("spaces.hidden") ?? "[]"));
+    this.showHidden = false;
     this.refreshMachines(cx);
     cx.timer.every(15000, cx => this.refreshMachines(cx));
     // `git status` walks the whole tree, on another machine a process there:
@@ -312,11 +315,20 @@ export default class Spaces extends View {
     return out.filter(r => this.shown.has(r.w.id));
   }
 
+  toggleHidden(id, cx) {
+    if (this.hidden.has(id)) this.hidden.delete(id);
+    else this.hidden.add(id);
+    localStorage.setItem("spaces.hidden", JSON.stringify([...this.hidden]));
+    if (!this.hidden.size) this.showHidden = false;
+    cx.notify();
+  }
+
   // The rows, under a header per machine once one isn't this computer.
   grouped(t, collapsed) {
-    const rows = this.ordered();
+    const allRows = this.ordered();
+    const rows = this.showHidden ? allRows : allRows.filter(r => !this.hidden.has(r.w.id));
     const draw = (r) => (collapsed ? this.compact(r, t) : this.row(r, t));
-    const remote = [...new Set([...rows.map(r => r.w.machine).filter(Boolean), ...this.machines.map(m => m.name), ...Object.keys(this.reconnecting)])].sort();
+    const remote = [...new Set([...allRows.map(r => r.w.machine).filter(Boolean), ...this.machines.map(m => m.name), ...Object.keys(this.reconnecting)])].sort();
     const loading = m => {
       const layout = machines().find(k => k.name === m)?.layout;
       return layout === "loading" || (!layout && this.machines.some(k => k.name === m && k.state === "connected"))
@@ -416,6 +428,8 @@ export default class Spaces extends View {
 
   row({ w, i, g, tree }, t) {
     const on = w.active;
+    const isHidden = this.hidden.has(w.id);
+    const showEye = this.hovered === w.id || isHidden;
     const fromIndex = this.pressed === null ? -1 : spaces().findIndex(s => s.id === this.pressed);
     const colors = shared("space.colors") ?? {};
     const color = colors[w.id] ?? "ansi6";
@@ -432,12 +446,18 @@ export default class Spaces extends View {
       .border_color(on ? ORANGE : t.chrome + "00")
       .when(on, (el) => el.bg(ORANGE + "1f"))
       .when(!on, (el) => el.hover((s) => s.bg(t.hover)))
+      .when(isHidden, (el) => el.opacity(0.45))
       .when(this.pressed === w.id && this.over !== w.id, (el) => el.opacity(0.5))
       .when(this.pressed !== null && this.over === w.id && this.pressed !== w.id, (el) => el.child(
         div().absolute().left(0).right(0).h(2).bg(t.accent)
           .when(fromIndex < i, line => line.bottom(0))
           .when(fromIndex > i, line => line.top(0)),
       ))
+      .on_hover((hovered, cx) => {
+        if (hovered) this.hovered = w.id;
+        else if (this.hovered === w.id) this.hovered = null;
+        cx.notify();
+      })
       .on_mouse_down("left", () => {
         this.pressed = w.id;
         this.over = w.id;
@@ -471,7 +491,20 @@ export default class Spaces extends View {
           .child(div().flex_shrink(0).max_w(140).truncate().font_family(PX).text_size(16).line_height("16px")
             .text_color(on ? t.foreground : t.muted).child(w.name))
           .when(w.status === "blocked" || w.status === "done", el => el.child(div().flex_none().font_family(PX).text_size(16).text_color(tone(t, w.status)).child(w.status === "blocked" ? "!" : "*")))
-          .child(g ? this.gitTail(g, tree, w.name, t) : div().flex_1()),
+          .child(g ? this.gitTail(g, tree, w.name, t) : div().flex_1())
+          .when(showEye, el => el.child(
+            div().id(`space-hide-${w.id}`).size(20).flex_none().flex().items_center().justify_center()
+              .cursor_pointer().text_color(t.dim).hover(s => s.text_color(ORANGE))
+              .tooltip(isHidden ? "Unhide space" : "Hide space")
+              .on_mouse_down("left", (_e, cx) => cx.stop_propagation())
+              .on_mouse_up("left", (_e, cx) => cx.stop_propagation())
+              .on_click((_e, cx) => {
+                cx.stop_propagation();
+                this.hovered = null;
+                this.toggleHidden(w.id, cx);
+              })
+              .child(svg(`${ART}/${isHidden ? "eye" : "eye-off"}.svg`).size(12))
+          )),
       );
   }
 
@@ -484,6 +517,7 @@ export default class Spaces extends View {
       .rounded(6)
       .justify_center()
       .items_center()
+      .when(this.hidden.has(w.id), (el) => el.opacity(0.45))
       .when(w.active, (el) => el.bg(t.selected))
       .when(!w.active, (el) => el.hover((s) => s.bg(t.hover)))
       .on_click(() => run("space.select", { id: w.id }))
@@ -496,6 +530,8 @@ export default class Spaces extends View {
     const collapsed = narrow();
     const palette = ["ansi6", "ansi3", "ansi4", "ansi5", "ansi2", "ansi1"];
     const sp = spaces();
+    const hiddenCount = sp.filter(s => this.hidden.has(s.id)).length;
+    if (!hiddenCount && this.showHidden) this.showHidden = false;
     const ids = new Set(sp.map(p => p.id));
     const kept = Object.fromEntries(Object.entries(shared("space.colors") ?? {}).filter(([id]) => ids.has(id)));
     let changed = Object.keys(kept).length !== Object.keys(shared("space.colors") ?? {}).length;
@@ -512,9 +548,19 @@ export default class Spaces extends View {
         .when(!collapsed, el => el.child(h_flex().gap(8).items_center()
           .child(image(`${ART}/dither.svg`).w(14).h(12).flex_none())
           .child(div().font_family(PX).text_size(16).line_height("16px").text_color(t.dim).child("SPACES"))))
-        .child(div().id("space-new").size(24).flex_none().flex().items_center().justify_center().font_family(PX).text_size(16)
-          .hover(s => s.text_color(ORANGE))
-          .on_click(() => run("space.new")).child("+")))
+        .child(h_flex().gap(4).items_center()
+          .when(!collapsed && hiddenCount > 0, el => el.child(
+            h_flex().id("space-toggle-hidden").h(24).px(5).gap(4).flex_none().items_center().cursor_pointer()
+              .text_color(this.showHidden ? ORANGE : t.dim)
+              .hover(s => s.text_color(ORANGE))
+              .tooltip(this.showHidden ? "Hide hidden spaces" : "Show hidden spaces")
+              .on_click((_e, cx) => { this.showHidden = !this.showHidden; cx.notify(); })
+              .child(svg(`${ART}/${this.showHidden ? "eye" : "eye-off"}.svg`).size(12))
+              .child(div().font_family(PX).text_size(14).line_height("14px").child(String(hiddenCount)))
+          ))
+          .child(div().id("space-new").size(24).flex_none().flex().items_center().justify_center().font_family(PX).text_size(16)
+            .hover(s => s.text_color(ORANGE))
+            .on_click(() => run("space.new")).child("+"))))
       .child(v_flex().flex_1().min_h(0).px(collapsed ? 0 : 8).pb(14).overflow_y_scrollbar().mode("always")
         .on_mouse_up("left", (_e, cx) => { this.pressed = null; cx.notify(); })
         .children(this.grouped(t, collapsed)));
